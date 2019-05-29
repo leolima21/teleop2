@@ -16,6 +16,12 @@ class MainWindow(QMainWindow):
 	def __init__(self, *args, **kwargs):
 		super(MainWindow, self).__init__(*args, **kwargs)
 
+		# Objeto que ira publicar no topico teleop_topic
+		self.pub = rospy.Publisher('teleop_topic', String, queue_size=10)
+
+		# Inicio do node teleop_pub
+		rospy.init_node('teleop_pub', anonymous=True)
+
 		# Titulo da janela
 		self.setWindowTitle("Hanz1 - Painel de controle")
 
@@ -26,10 +32,10 @@ class MainWindow(QMainWindow):
 		self.but_dir = QPushButton('Turn Right')
 
 		# Atribuicao das funcoes
-		self.but_frente.clicked.connect(publicar('w'))
-		self.but_tras.clicked.connect(publicar('s'))
-		self.but_esq.clicked.connect(publicar('a'))
-		self.but_dir.clicked.connect(publicar('d'))
+		self.but_frente.clicked.connect(self.publicar_w)
+		self.but_tras.clicked.connect(self.publicar_s)
+		self.but_esq.clicked.connect(self.publicar_a)
+		self.but_dir.clicked.connect(self.publicar_d)
 
 		# Grid layout 
 		layout = QGridLayout()
@@ -39,35 +45,33 @@ class MainWindow(QMainWindow):
 		layout.addWidget(self.but_dir, 2, 2)
 		layout.addWidget(self.but_tras, 3, 1)
 
-		# Widget principal
 		widget = QWidget()
 		widget.setLayout(layout)
 		self.setCentralWidget(widget) 
 
 
-def ros_node():
-	# Objeto que ira publicar no topico teleop_topic
-	pub = rospy.Publisher('teleop_topic', String, queue_size=10)
+	# Funcoes de publicacao
+	def publicar_w (self):
+		rospy.loginfo('w')
+		self.pub.publish('w')
 
-	# Inicio do node teleop_pub
-	rospy.init_node('teleop_pub', anonymous=True)
+	def publicar_s (self):
+		rospy.loginfo('s')
+		self.pub.publish('s')
+	
+	def publicar_a (self):
+		rospy.loginfo('a')
+		self.pub.publish('a')
 
-
-def publicar(comando):
-	# Publicacao da info no topico
-	rospy.loginfo(comando)
-	pub.publish(comando)
-
-	# Esperar 2s ate o proximo comando
-	time.sleep(2)
+	def publicar_d (self):
+		rospy.loginfo('d')
+		self.pub.publish('d')	
 
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
 
 	window = MainWindow()
-
-	ros_node()
 
 	window.show()
 
